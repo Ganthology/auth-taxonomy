@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -17,42 +16,47 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-const formSchema = z.object({
-  email: z.string().email().min(2, {
-    message: "Email must be at least 2 characters.",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-})
+const formSchema = z
+  .object({
+    email: z.string().email().min(2, {
+      message: "Email must be at least 2 characters.",
+    }),
+    password: z.string().min(8, {
+      message: "Password must be at least 8 characters.",
+    }),
+    confirmPassword: z.string().min(8, {
+      message: "Password must be at least 8 characters.",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
 
-export function JWTForm() {
-  const router = useRouter()
+export function RegisterForm() {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   })
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await fetch("/api/v1/auth/jwt/sign-in", {
+    await fetch("/api/v1/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(values),
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
+      }),
     })
-
-    if (res.ok) {
-      router.push("/dashboard")
-    } else {
-      const data = await res.json()
-      console.error(data)
-    }
+    console.log(values)
   }
 
   return (
@@ -65,7 +69,7 @@ export function JWTForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your email" {...field} />
+                <Input placeholder="Enter email" {...field} />
               </FormControl>
               <FormDescription>This is your email</FormDescription>
               <FormMessage />
@@ -81,7 +85,7 @@ export function JWTForm() {
               <FormControl>
                 <Input
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Enter password"
                   {...field}
                 />
               </FormControl>
@@ -90,7 +94,25 @@ export function JWTForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Sign In</Button>
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirm Password</FormLabel>
+              <FormControl>
+                <Input
+                  type="password"
+                  placeholder="Confirm your password"
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>This is your password</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Submit</Button>
       </form>
     </Form>
   )

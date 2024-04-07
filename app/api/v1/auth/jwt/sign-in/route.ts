@@ -1,10 +1,12 @@
-import { headers } from "next/headers"
+import { cookies } from "next/headers"
+import bcrypt from "bcrypt"
 import * as z from "zod"
 
-import { generateToken, verifyToken } from "@/lib/jwt"
+import { generateToken } from "@/lib/jwt"
+import prisma from "@/lib/prisma"
 
 const jwtSignInSchema = z.object({
-  username: z.string().min(2, {
+  email: z.string().min(2, {
     message: "Username must be at least 2 characters.",
   }),
   password: z.string().min(8, {
@@ -17,7 +19,36 @@ export async function POST(req: Request) {
     const json = await req.json()
     const body = jwtSignInSchema.parse(json)
 
-    const token = generateToken({ username: body.username })
+    const user = await prisma.user.findFirst({
+      where: {
+        email: body.email,
+      },
+    })
+
+    if (!user) {
+      return new Response(JSON.stringify({ message: "User not found" }), {
+        status: 404,
+      })
+    }
+
+    const passwordMatch = await bcrypt.compare(body.password, user.password)
+
+    if (!passwordMatch) {
+      return new Response(JSON.stringify({ message: "Invalid password" }), {
+        status: 401,
+      })
+    }
+
+    const token = generateToken({ email: body.email })
+
+    const expiresIn = 60 * 60 * 1000 // 1 hour
+
+    cookies().set("jwt-token", token, {
+      maxAge: expiresIn,
+      httpOnly: true,
+      secure: true,
+    })
+
     return new Response(JSON.stringify({ token }), { status: 200 })
   } catch (error) {
     if (error instanceof z.ZodError) {
