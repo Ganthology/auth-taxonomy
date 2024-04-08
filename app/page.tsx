@@ -14,7 +14,7 @@ const AuthInfoOptions = [
   {
     title: "Magic Link",
     description: "Use Magic Link for passwordless and secure authentication.",
-    disabled: true,
+    destination: "/magic-link",
   },
   {
     title: "Session-Based",
