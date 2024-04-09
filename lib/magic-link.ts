@@ -9,3 +9,21 @@ export async function saveToken(userId: string, token: string) {
     },
   })
 }
+
+export async function getTokenData(token: string) {
+  const magicToken = await prisma.magicToken.findFirst({
+    where: {
+      token,
+    },
+  })
+
+  if (!magicToken) {
+    throw new Error("Token not found")
+  }
+
+  if (magicToken.expiresAt < new Date()) {
+    throw new Error("Token expired")
+  }
+
+  return magicToken
+}

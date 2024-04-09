@@ -1,10 +1,10 @@
 import { headers } from "next/headers"
 import * as z from "zod"
 
-import { resend } from "@/lib/email"
 import { generateToken } from "@/lib/jwt"
 import { saveToken } from "@/lib/magic-link"
 import prisma from "@/lib/prisma"
+import { resend } from "@/lib/resend"
 import { MagicLinkEmailTemplate } from "@/components/email-template/magic-link-request"
 
 const magicLinkSchema = z.object({
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     await saveToken(user.id, token)
 
     const { data, error } = await resend.emails.send({
-      from: "Ray <ray.ganbk@gmail.com>",
+      from: `Ray <${process.env.RESEND_SENDER_EMAIL}>`,
       to: [user.email],
       subject: "[Auth Taxonomy] Your magic link to login",
       react: MagicLinkEmailTemplate({
@@ -50,9 +50,15 @@ export async function POST(req: Request) {
     })
 
     if (error) {
-      return new Response(JSON.stringify({ message: "Failed to send email" }), {
-        status: 500,
-      })
+      return new Response(
+        JSON.stringify({
+          message: "Failed to send email",
+          error: error.message,
+        }),
+        {
+          status: 500,
+        }
+      )
     }
 
     return new Response(JSON.stringify({ data }), { status: 200 })
