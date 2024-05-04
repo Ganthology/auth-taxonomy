@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
+import { ErrorMessage } from "@/components/ui/error-message"
 import {
   Form,
   FormControl,
@@ -28,7 +30,8 @@ const formSchema = z.object({
 
 export function JWTForm() {
   const router = useRouter()
-  // 1. Define your form.
+  const [error, setError] = useState<string | null>(null)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,7 +40,6 @@ export function JWTForm() {
     },
   })
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const res = await fetch("/api/v1/auth/jwt/sign-in", {
       method: "POST",
@@ -51,7 +53,7 @@ export function JWTForm() {
       router.push("/dashboard")
     } else {
       const data = await res.json()
-      console.error(data)
+      setError(data.message)
     }
   }
 
@@ -90,6 +92,7 @@ export function JWTForm() {
             </FormItem>
           )}
         />
+        {error ? <ErrorMessage>{error}</ErrorMessage> : null}
         <Button type="submit">Sign In</Button>
       </form>
     </Form>

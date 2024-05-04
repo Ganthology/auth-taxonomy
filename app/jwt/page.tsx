@@ -1,5 +1,5 @@
 import { JWTForm } from "@/components/form/jwt"
-import { Navbar } from "@/components/navigation/Navbar"
+import { Navbar } from "@/components/navigation/navbar"
 
 export default function JWTPage() {
   return (

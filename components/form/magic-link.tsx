@@ -1,11 +1,13 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { Button } from "@/components/ui/button"
+import { ErrorMessage } from "@/components/ui/error-message"
 import {
   Form,
   FormControl,
@@ -25,7 +27,8 @@ const formSchema = z.object({
 
 export function MagicLinkForm() {
   const router = useRouter()
-  // 1. Define your form.
+  const [error, setError] = useState<string | null>(null)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,7 +36,6 @@ export function MagicLinkForm() {
     },
   })
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const res = await fetch("/api/v1/auth/magic-link/get", {
       method: "POST",
@@ -42,6 +44,13 @@ export function MagicLinkForm() {
       },
       body: JSON.stringify(values),
     })
+
+    if (res.ok) {
+      router.push("/dashboard")
+    } else {
+      const data = await res.json()
+      setError(data.message)
+    }
   }
 
   return (
@@ -57,7 +66,7 @@ export function MagicLinkForm() {
                 <Input placeholder="Enter your email" {...field} />
               </FormControl>
               <FormDescription>This is your email</FormDescription>
-              <FormMessage />
+              {error ? <ErrorMessage>{error}</ErrorMessage> : <FormMessage />}
             </FormItem>
           )}
         />

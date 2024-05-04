@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 
-import { InfoCard } from "@/components/InfoCard"
-import { Navbar } from "@/components/navigation/Navbar"
+import { InfoCard } from "@/components/info-card"
+import { Navbar } from "@/components/navigation/navbar"
 
 const AuthInfoOptions = [
   {
@@ -19,6 +19,12 @@ const AuthInfoOptions = [
   {
     title: "Session-Based",
     description: "Utilize session IDs for a simple, time-tested solution.",
+    disabled: true,
+  },
+  {
+    title: "Authenticator",
+    description:
+      "Use the Authenticator app for secure two-factor authentication.",
     disabled: true,
   },
   {
@@ -39,9 +45,10 @@ const AuthInfoOptions = [
     disabled: true,
   },
   {
-    title: "Auth0",
+    // web 3 wallet authentication
+    title: "Web3 Wallet",
     description:
-      "Use Auth0 for a flexible, drop-in solution to add authentication and authorization services to your applications.",
+      "Use Web3 wallets for decentralized and secure authentication.",
     disabled: true,
   },
 ]
