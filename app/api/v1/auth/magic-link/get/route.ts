@@ -31,6 +31,7 @@ export async function POST(req: Request) {
     }
 
     const token = generateToken({ email: body.email })
+    console.log("🚀 ~ POST ~ token:", token)
 
     const headersList = headers()
 
@@ -38,7 +39,21 @@ export async function POST(req: Request) {
 
     const magicLink = `https://${host}/api/v1/auth/magic-link/verify?token=${token}`
 
-    await saveToken(user.id, token)
+    console.log("🚀 ~ POST ~ magicLink:", magicLink)
+    try {
+      await saveToken(user.id, token)
+    } catch (error) {
+      if (error instanceof Error)
+        return new Response(
+          JSON.stringify({
+            message: "Failed to save token",
+            error: error.message,
+          }),
+          {
+            status: 500,
+          }
+        )
+    }
 
     const { data, error } = await resend.emails.send({
       from: `Ray <${process.env.RESEND_SENDER_EMAIL}>`,
@@ -48,6 +63,7 @@ export async function POST(req: Request) {
         magicLinkUrl: magicLink,
       }) as React.ReactElement,
     })
+    console.log("🚀 ~ POST ~ data:", data)
 
     if (error) {
       return new Response(
