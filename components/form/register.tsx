@@ -34,7 +34,6 @@ const formSchema = z
   })
 
 export function RegisterForm() {
-  // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,9 +43,8 @@ export function RegisterForm() {
     },
   })
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await fetch("/api/v1/auth/register", {
+    await fetch("/api/auth/v1/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -56,7 +54,6 @@ export function RegisterForm() {
         password: values.password,
       }),
     })
-    console.log(values)
   }
 
   return (

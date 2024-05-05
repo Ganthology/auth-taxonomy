@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
     const host = headersList.get("host")
 
-    const magicLink = `https://${host}/api/v1/auth/magic-link/verify?token=${token}`
+    const magicLink = `https://${host}/api/auth/v1/magic-link/verify?token=${token}`
 
     console.log("🚀 ~ POST ~ magicLink:", magicLink)
     try {

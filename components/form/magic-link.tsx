@@ -37,7 +37,7 @@ export function MagicLinkForm() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await fetch("/api/v1/auth/magic-link/get", {
+    const res = await fetch("/api/auth/v1/magic-link/get", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

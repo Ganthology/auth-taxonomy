@@ -41,7 +41,7 @@ export function JWTForm() {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const res = await fetch("/api/v1/auth/jwt/sign-in", {
+    const res = await fetch("/api/auth/v1/jwt/sign-in", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
